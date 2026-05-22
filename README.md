@@ -9,7 +9,7 @@ You need Node.js v18 or higher installed. Download it from https://nodejs.org if
 
 1. Clone the repository
 
-   git clone <your-repo-url>
+   git clone https://github.com/tejas-mathangi/flashcards-api.git
    cd flashcards-api
 
 2. Install dependencies
