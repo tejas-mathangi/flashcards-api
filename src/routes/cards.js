@@ -1,14 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
+const { validateNewCard, validateReview } = require('../middleware/validateCard');
 
 // POST /cards — create a new flashcard
-router.post('/', (req, res) => {
+router.post('/', validateNewCard, (req, res) => {
   const { front, back, tag } = req.body;
-
-  if (!front || !back) {
-    return res.status(400).json({ error: 'front and back are required' });
-  }
 
   const stmt = db.prepare(`
     INSERT INTO cards (front, back, tag)
@@ -111,7 +108,7 @@ router.delete('/:id', (req, res) => {
 });
 
 // POST /cards/:id/review — mark a card correct or wrong
-router.post('/:id/review', (req, res) => {
+router.post('/:id/review', validateReview, (req, res) => {
   const card = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
 
   if (!card) {
@@ -120,10 +117,6 @@ router.post('/:id/review', (req, res) => {
 
   const { correct } = req.body;
 
-  if (typeof correct !== 'boolean') {
-    return res.status(400).json({ error: '"correct" field is required and must be a boolean' });
-  }
-
   const newScore = correct ? card.score + 1 : card.score - 1;
   const reviewedAt = new Date().toISOString();
 
@@ -131,8 +124,4 @@ router.post('/:id/review', (req, res) => {
     UPDATE cards SET score = ?, last_reviewed = ? WHERE id = ?
   `).run(newScore, reviewedAt, req.params.id);
 
-  const updatedCard = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
-  res.json(updatedCard);
-});
-
-module.exports = router;
+  const updatedCard =
