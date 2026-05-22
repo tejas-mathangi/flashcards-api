@@ -8,7 +8,7 @@ Requirements:
 
 Steps on a fresh machine:
 
-git clone <your-repo-url>
+git clone https://github.com/tejas-mathangi/flashcards-api.git
 cd flashcards-api
 npm install
 npm start
