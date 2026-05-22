@@ -124,4 +124,8 @@ router.post('/:id/review', validateReview, (req, res) => {
     UPDATE cards SET score = ?, last_reviewed = ? WHERE id = ?
   `).run(newScore, reviewedAt, req.params.id);
 
-  const updatedCard =
+  const updatedCard = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
+  res.json(updatedCard);
+});
+
+module.exports = router;
