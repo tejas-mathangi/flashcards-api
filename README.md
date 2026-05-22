@@ -3,16 +3,13 @@
 A REST API for managing study flashcards with a score-based review system.
 Built with Node.js, Express, and SQLite.
 
-## Prerequisites
+## How to Run (Fresh Machine)
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- npm (comes with Node.js)
-
-## Setup & Run
+You need Node.js v18 or higher installed. Download it from https://nodejs.org if you don't have it.
 
 1. Clone the repository
 
-   git clone 
+   git clone <your-repo-url>
    cd flashcards-api
 
 2. Install dependencies
@@ -25,33 +22,45 @@ Built with Node.js, Express, and SQLite.
 
 The API will be running at http://localhost:3000
 
-For development with auto-restart:
+That's it. No database setup, no configuration, no environment variables needed.
+The SQLite database file is created automatically at data/flashcards.db on first run.
+Restart the server and your data is still there.
 
-   npm run dev
+## The Meaningful Feature — Score-Based Review Queue
 
-> The SQLite database file is created automatically at `data/flashcards.db` on first run.
-> No database setup or configuration required.
+Beyond basic CRUD, the API includes a review system.
+
+Every card has a score (starts at 0).
+- POST /cards/:id/review with { "correct": true } increments the score
+- POST /cards/:id/review with { "correct": false } decrements the score
+
+GET /cards/review returns all cards sorted by score ascending — lowest score first.
+This means cards you keep getting wrong surface at the top of your queue automatically.
+You can also filter by tag: GET /cards/review?tag=javascript
+
+This is a feature I'd actually want. A plain CRUD flashcard app makes you decide
+what to study next. This one tells you.
 
 ## API Endpoints
 
 ### Cards
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /cards | Create a new flashcard |
-| GET | /cards | Get all cards (optional: ?tag=) |
-| GET | /cards/:id | Get a single card by ID |
-| PUT | /cards/:id | Update a card |
-| DELETE | /cards/:id | Delete a card |
+| Method | Endpoint          | Description                        |
+|--------|-------------------|------------------------------------|
+| POST   | /cards            | Create a new flashcard             |
+| GET    | /cards            | Get all cards (optional: ?tag=)    |
+| GET    | /cards/:id        | Get a single card by ID            |
+| PUT    | /cards/:id        | Update a card                      |
+| DELETE | /cards/:id        | Delete a card                      |
 
 ### Review System
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /cards/:id/review | Mark a card correct or wrong |
-| GET | /cards/review | Get cards sorted by score (lowest first) |
+| Method | Endpoint              | Description                              |
+|--------|-----------------------|------------------------------------------|
+| POST   | /cards/:id/review     | Mark a card correct or wrong             |
+| GET    | /cards/review         | Get cards sorted by score (lowest first) |
 
-## Example Usage
+## Example Requests
 
 ### Create a card
 
