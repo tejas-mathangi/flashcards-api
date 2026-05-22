@@ -39,6 +39,33 @@ router.get('/', (req, res) => {
   res.json(cards);
 });
 
+// GET /cards/review — get cards sorted by score ascending (lowest first)
+// Must be defined BEFORE /:id to avoid route conflict
+router.get('/review', (req, res) => {
+  const { tag } = req.query;
+
+  let cards;
+
+  if (tag) {
+    cards = db.prepare(`
+      SELECT * FROM cards WHERE tag = ? ORDER BY score ASC, last_reviewed ASC
+    `).all(tag);
+  } else {
+    cards = db.prepare(`
+      SELECT * FROM cards ORDER BY score ASC, last_reviewed ASC
+    `).all();
+  }
+
+  if (cards.length === 0) {
+    return res.json({ message: 'No cards found', cards: [] });
+  }
+
+  res.json({
+    total: cards.length,
+    cards
+  });
+});
+
 // GET /cards/:id — get a single card by ID
 router.get('/:id', (req, res) => {
   const card = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
