@@ -83,4 +83,29 @@ router.delete('/:id', (req, res) => {
   res.json({ message: 'Card deleted successfully', id: Number(req.params.id) });
 });
 
+// POST /cards/:id/review — mark a card correct or wrong
+router.post('/:id/review', (req, res) => {
+  const card = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
+
+  if (!card) {
+    return res.status(404).json({ error: 'Card not found' });
+  }
+
+  const { correct } = req.body;
+
+  if (typeof correct !== 'boolean') {
+    return res.status(400).json({ error: '"correct" field is required and must be a boolean' });
+  }
+
+  const newScore = correct ? card.score + 1 : card.score - 1;
+  const reviewedAt = new Date().toISOString();
+
+  db.prepare(`
+    UPDATE cards SET score = ?, last_reviewed = ? WHERE id = ?
+  `).run(newScore, reviewedAt, req.params.id);
+
+  const updatedCard = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
+  res.json(updatedCard);
+});
+
 module.exports = router;
